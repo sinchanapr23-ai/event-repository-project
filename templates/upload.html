@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Event – EventRepo - {{ session['department'] }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #f0f4ff;
+            color: #1a2a5e;
+            min-height: 100vh;
+        }
+
+        /* ── NAV ── */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2.5rem;
+            height: 62px;
+            background: #1a3a8a;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            color: #fff;
+            text-decoration: none;
+        }
+        .nav-brand-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #F5C842;
+            display: inline-block;
+        }
+        .nav-links { display: flex; align-items: center; gap: 2px; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.6);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+        .nav-link:hover { color: #fff; background: rgba(255,255,255,0.1); }
+        .nav-link.active { color: #F5C842; background: rgba(245,200,66,0.15); }
+        .nav-link.logout {
+            color: #ffaaaa;
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            margin-left: 6px;
+        }
+        .nav-link.logout:hover { background: rgba(239,68,68,0.25); }
+
+        /* ── MAIN ── */
+        .main-container {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 2rem 2.5rem;
+        }
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 1.75rem;
+        }
+        .breadcrumb {
+            font-size: 12px;
+            color: #5a6ea0;
+            margin-bottom: 5px;
+        }
+        .breadcrumb span { color: #1a3a8a; }
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: #1a2a5e;
+        }
+        .page-sub { font-size: 13px; color: #5a6ea0; margin-top: 4px; }
+
+        /* ── BUTTONS ── */
+        .btn-primary-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 20px;
+            background: #F5C842;
+            color: #1a2a5e;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: opacity 0.15s;
+        }
+        .btn-primary-custom:hover { opacity: 0.88; color: #1a2a5e; }
+        .btn-secondary-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 18px;
+            background: transparent;
+            color: #5a6ea0;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid #dce5f7;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.15s;
+        }
+        .btn-secondary-custom:hover { border-color: #1a3a8a; color: #1a2a5e; }
+
+        /* ── ALERT ── */
+        .alert-error {
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.25);
+            color: #c0392b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 1.25rem;
+        }
+
+        /* ── FORM CARD ── */
+        .form-wrapper {
+            background: #ffffff;
+            border: 1px solid #dce5f7;
+            border-radius: 12px;
+            padding: 1.75rem;
+        }
+        .form-wrapper-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a2a5e;
+            margin-bottom: 4px;
+        }
+        .form-wrapper-sub {
+            font-size: 13px;
+            color: #5a6ea0;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .form-group:last-child { margin-bottom: 0; }
+        .form-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #5a6ea0;
+        }
+        .required { color: #e05050; }
+        .form-input, .form-control {
+            background: #f0f4ff;
+            border: 1px solid #dce5f7;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 13px;
+            color: #1a2a5e;
+            outline: none;
+            font-family: 'DM Sans', sans-serif;
+            width: 100%;
+            transition: border-color 0.15s;
+        }
+        .form-input::placeholder { color: #5a6ea0; }
+        .form-input:focus, .form-control:focus { border-color: #1a3a8a; }
+        .form-input[readonly], .form-control[readonly] {
+            color: #5a6ea0;
+            cursor: not-allowed;
+        }
+        textarea.form-input { resize: vertical; line-height: 1.6; }
+
+        /* ── DROP ZONE ── */
+        .file-drop-zone {
+            border: 1.5px dashed #dce5f7;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            background: #f0f4ff;
+            transition: all 0.15s;
+            position: relative;
+        }
+        .file-drop-zone:hover, .file-drop-zone.has-file {
+            border-color: #1a3a8a;
+            background: rgba(26,58,138,0.04);
+        }
+        .file-drop-text .file-drop-icon { font-size: 28px; display: block; margin-bottom: 8px; }
+        .file-drop-text p { font-size: 13px; color: #5a6ea0; margin-bottom: 3px; }
+        .file-drop-text .file-types { font-size: 11px; color: #aab8d8; }
+        .file-drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+        .file-name-display {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #40c070;
+        }
+
+        /* ── FORM ACTIONS ── */
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid #dce5f7;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="top-nav">
+    <a href="/dashboard" class="nav-brand">
+        <span class="nav-brand-dot"></span>
+        EventRepo
+    </a>
+    <div class="nav-links">
+        <a href="/dashboard" class="nav-link">
+            <i class="ti ti-layout-dashboard"></i>Dashboard
+        </a>
+        <a href="/upload" class="nav-link active">
+            <i class="ti ti-upload"></i>Upload
+        </a>
+        <a href="/events" class="nav-link">
+            <i class="ti ti-calendar-event"></i>Events
+        </a>
+        <a href="/logout" class="nav-link logout">
+            <i class="ti ti-logout"></i>Logout
+        </a>
+    </div>
+</nav>
+
+<div class="main-container">
+
+    <div class="page-header">
+        <div>
+            <div class="breadcrumb">{{ session['department'] }} <span>/</span> Upload Event</div>
+            <h2 class="page-title">Upload New Event</h2>
+            <p class="page-sub">Add a new event record to the repository.</p>
+        </div>
+        <a href="/dashboard" class="btn-secondary-custom">← Back</a>
+    </div>
+
+    <div class="form-wrapper">
+        <div class="form-wrapper-title">New Event Record</div>
+        <div class="form-wrapper-sub">Fill in all the details and attach the related file below.</div>
+
+        {% if error %}
+        <div class="alert-error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="upload-form">
+
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label class="form-label">Event Title <span class="required">*</span></label>
+                    <input type="text" name="title" class="form-input" placeholder="e.g. Tech Symposium 2024" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Department</label>
+                    <input type="text" value="{{ session['department'] }}" readonly class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Category <span class="required">*</span></label>
+                    <select name="category" class="form-input" required>
+                        <option value="">Select Category</option>
+                        <option value="Workshop">Workshop</option>
+                        <option value="Seminar">Seminar</option>
+                        <option value="Conference">Conference</option>
+                        <option value="Hackathon">Hackathon</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Academic Year <span class="required">*</span></label>
+                    <select name="year" class="form-input" required>
+                        <option value="">Select Year</option>
+                        <option value="2020-21">2020-21</option>
+                        <option value="2021-22">2021-22</option>
+                        <option value="2022-23">2022-23</option>
+                        <option value="2023-24">2023-24</option>
+                        <option value="2024-25">2024-25</option>
+                        <option value="2025-26">2025-26</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-input" rows="4" placeholder="Brief description of the event..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Upload File <span class="required">*</span></label>
+                <div class="file-drop-zone" id="dropZone">
+                    <div class="file-drop-text">
+                        <span class="file-drop-icon">☁</span>
+                        <p><strong style="color:#1a3a8a;">Click to browse</strong> or drag & drop</p>
+                        <p class="file-types">PDF, JPG, PNG supported — up to 20MB</p>
+                    </div>
+                    <input type="file" name="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                <div class="file-name-display" id="fileName"></div>
+            </div>
+
+            <div class="form-actions">
+                <a href="/dashboard" class="btn-secondary-custom">Cancel</a>
+                <button type="submit" class="btn-primary-custom">
+                    <i class="ti ti-upload"></i>Upload Event
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const fileName  = document.getElementById('fileName');
+    const dropZone  = document.getElementById('dropZone');
+
+    fileInput.addEventListener('change', function () {
+        if (this.files[0]) {
+            fileName.textContent = '✅ ' + this.files[0].name;
+            dropZone.classList.add('has-file');
+        }
+    });
+</script>
+
+</body>
+</html>

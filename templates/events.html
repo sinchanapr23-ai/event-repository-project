@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events – EventRepo - {{ session['department'] }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #f0f4ff;
+            color: #1a2a5e;
+            min-height: 100vh;
+        }
+
+        /* ── NAV ── */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2.5rem;
+            height: 62px;
+            background: #1a3a8a;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            color: #fff;
+            text-decoration: none;
+        }
+        .nav-brand-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #F5C842;
+            display: inline-block;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.6);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+        .nav-link:hover { color: #fff; background: rgba(255,255,255,0.1); }
+        .nav-link.active { color: #F5C842; background: rgba(245,200,66,0.15); }
+        .nav-link.logout {
+            color: #ffaaaa;
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            margin-left: 6px;
+        }
+        .nav-link.logout:hover { background: rgba(239,68,68,0.25); }
+
+        /* ── MAIN ── */
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 2.5rem;
+        }
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 1.75rem;
+        }
+        .page-header-left .breadcrumb {
+            font-size: 12px;
+            color: #5a6ea0;
+            margin-bottom: 5px;
+        }
+        .page-header-left .breadcrumb span { color: #1a3a8a; }
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: #1a2a5e;
+        }
+        .page-sub {
+            font-size: 13px;
+            color: #5a6ea0;
+            margin-top: 4px;
+        }
+
+        /* ── BUTTONS ── */
+        .btn-primary-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 20px;
+            background: #F5C842;
+            color: #1a2a5e;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: opacity 0.15s;
+            white-space: nowrap;
+        }
+        .btn-primary-custom:hover { opacity: 0.88; color: #1a2a5e; }
+        .btn-secondary-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 18px;
+            background: transparent;
+            color: #5a6ea0;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid #dce5f7;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .btn-secondary-custom:hover { border-color: #1a3a8a; color: #1a2a5e; }
+
+        /* ── SEARCH & FILTER BAR ── */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #ffffff;
+            border: 1px solid #dce5f7;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .search-input-wrap {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-input-wrap .search-icon {
+            position: absolute;
+            left: 11px;
+            color: #5a6ea0;
+            font-size: 16px;
+            pointer-events: none;
+        }
+        .search-input {
+            background: #f0f4ff;
+            border: 1px solid #dce5f7;
+            border-radius: 8px;
+            padding: 8px 12px 8px 34px;
+            font-size: 13px;
+            color: #1a2a5e;
+            outline: none;
+            font-family: 'DM Sans', sans-serif;
+            width: 100%;
+            transition: border-color 0.15s;
+        }
+        .search-input::placeholder { color: #5a6ea0; }
+        .search-input:focus { border-color: #1a3a8a; }
+
+        .filter-select {
+            background: #f0f4ff;
+            border: 1px solid #dce5f7;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #1a2a5e;
+            outline: none;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: border-color 0.15s;
+            min-width: 150px;
+        }
+        .filter-select:focus { border-color: #1a3a8a; }
+        .filter-select option { background: #ffffff; }
+
+        .search-divider {
+            width: 1px;
+            height: 28px;
+            background: #dce5f7;
+            flex-shrink: 0;
+        }
+
+        /* ── RESULTS META ── */
+        .results-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .results-count {
+            font-size: 12px;
+            color: #5a6ea0;
+            font-weight: 500;
+        }
+        .results-count strong { color: #1a3a8a; }
+
+        /* ── SECTION TITLE ── */
+        .section-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #5a6ea0;
+        }
+
+        /* ── EVENTS GRID ── */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+        }
+        .event-card {
+            background: #ffffff;
+            border: 1px solid #dce5f7;
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            position: relative;
+            overflow: hidden;
+        }
+        .event-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: rgba(26,58,138,0.2);
+            border-radius: 12px 12px 0 0;
+        }
+        .event-card:hover { border-color: #1a3a8a; box-shadow: 0 4px 16px rgba(26,58,138,0.1); }
+        .event-card:hover::before { background: #1a3a8a; }
+
+        .event-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .dept-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(26,58,138,0.1);
+            color: #1a3a8a;
+            letter-spacing: 0.03em;
+        }
+        .category-tag {
+            font-size: 11px;
+            color: #5a6ea0;
+            background: #e8eef8;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+        .year-tag {
+            font-size: 11px;
+            color: #5a6ea0;
+            background: #e8eef8;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+        .event-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a2a5e;
+            line-height: 1.4;
+        }
+        .event-desc {
+            font-size: 12px;
+            color: #5a6ea0;
+            line-height: 1.6;
+            flex: 1;
+        }
+        .event-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid #dce5f7;
+            margin-top: 4px;
+        }
+        .upload-date {
+            font-size: 11px;
+            color: #5a6ea0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-view {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 5px 12px;
+            border-radius: 6px;
+            background: rgba(26,58,138,0.08);
+            color: #1a3a8a;
+            text-decoration: none;
+            border: 1px solid rgba(26,58,138,0.2);
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-view:hover { background: rgba(26,58,138,0.15); color: #1a3a8a; }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            text-align: center;
+            background: #ffffff;
+            border: 1px solid #dce5f7;
+            border-radius: 12px;
+        }
+        .empty-icon {
+            width: 58px; height: 58px;
+            border-radius: 14px;
+            background: rgba(26,58,138,0.06);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            color: #5a6ea0;
+            margin-bottom: 1rem;
+        }
+        .empty-state p {
+            font-size: 14px;
+            font-weight: 500;
+            color: #5a6ea0;
+            margin-bottom: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="top-nav">
+    <a href="/dashboard" class="nav-brand">
+        <span class="nav-brand-dot"></span>
+        EventRepo
+    </a>
+    <div class="nav-links">
+        <a href="/dashboard" class="nav-link">
+            <i class="ti ti-layout-dashboard"></i>Dashboard
+        </a>
+        <a href="/upload" class="nav-link">
+            <i class="ti ti-upload"></i>Upload
+        </a>
+        <a href="/events" class="nav-link active">
+            <i class="ti ti-calendar-event"></i>Events
+        </a>
+        <a href="/logout" class="nav-link logout">
+            <i class="ti ti-logout"></i>Logout
+        </a>
+    </div>
+</nav>
+
+<div class="main-container">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <div class="breadcrumb">{{ session['department'] }} <span>/</span> Events</div>
+            <h2 class="page-title">Event Repository</h2>
+            <p class="page-sub">Browse and search all uploaded events.</p>
+        </div>
+        <a href="/upload" class="btn-primary-custom">
+            <i class="ti ti-plus"></i>Upload Event
+        </a>
+    </div>
+
+    <!-- SEARCH & FILTER BAR -->
+    <form method="GET" class="search-bar">
+        <div class="search-input-wrap">
+            <i class="ti ti-search search-icon"></i>
+            <input
+                type="text"
+                name="search"
+                class="search-input"
+                placeholder="Search events by title..."
+                value="{{ search }}"
+            >
+        </div>
+
+        <div class="search-divider"></div>
+
+        <select name="category" class="filter-select">
+            <option value="">All Categories</option>
+            <option value="Internal College Event" {% if category_filter == 'Internal College Event' %}selected{% endif %}>Internal College Event</option>
+            <option value="External Hackathon"     {% if category_filter == 'External Hackathon'     %}selected{% endif %}>External Hackathon</option>
+            <option value="Workshop"               {% if category_filter == 'Workshop'               %}selected{% endif %}>Workshop</option>
+            <option value="Session"                {% if category_filter == 'Session'                %}selected{% endif %}>Session</option>
+            <option value="Hackathon"              {% if category_filter == 'Hackathon'              %}selected{% endif %}>Hackathon</option>
+            <option value="Ideathon"               {% if category_filter == 'Ideathon'               %}selected{% endif %}>Ideathon</option>
+        </select>
+
+        <select name="year" class="filter-select">
+            <option value="">All Years</option>
+            {% for y in years %}
+            <option value="{{ y[0] }}" {% if year_filter == y[0] %}selected{% endif %}>{{ y[0] }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn-primary-custom">
+            <i class="ti ti-search"></i>Search
+        </button>
+        <a href="/events" class="btn-secondary-custom">
+            <i class="ti ti-refresh"></i>Reset
+        </a>
+    </form>
+
+    <!-- RESULTS META -->
+    <div class="results-meta">
+        <span class="section-title">Search Results</span>
+        <span class="results-count"><strong>{{ events|length }}</strong> event(s) found</span>
+    </div>
+
+    <!-- EVENTS GRID -->
+    {% if events %}
+    <div class="events-grid">
+        {% for event in events %}
+        <div class="event-card">
+            <div class="event-card-top">
+                <span class="dept-badge">{{ event.department }}</span>
+                <span class="year-tag">{{ event.year }}</span>
+            </div>
+            <h4 class="event-title">{{ event.title }}</h4>
+            {% if event.category %}
+            <span class="category-tag" style="align-self:flex-start;">
+                <i class="ti ti-tag" style="font-size:10px;"></i> {{ event.category }}
+            </span>
+            {% endif %}
+            <p class="event-desc">{{ event.description or 'No description provided.' }}</p>
+            <div class="event-card-footer">
+                <span class="upload-date">
+                    <i class="ti ti-calendar"></i>{{ event.upload_date }}
+                </span>
+                <a href="/uploads/{{ event.filename }}" target="_blank" class="btn-view">
+                    Open File <i class="ti ti-external-link"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="ti ti-search"></i></div>
+        <p>No events found matching your search.</p>
+        <a href="/events" class="btn-secondary-custom">
+            <i class="ti ti-refresh"></i>Clear Filters
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+</body>
+</html>

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard – EventRepo</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #f0f4ff;
+            color: #1a2a5e;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .er-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            height: 62px;
+            background: #1a3a8a;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .er-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            color: #fff;
+            text-decoration: none;
+        }
+        .er-logo-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #F5C842;
+            flex-shrink: 0;
+        }
+        .er-nav-links { display: flex; align-items: center; gap: 4px; }
+        .er-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.6);
+            border-radius: 7px;
+            text-decoration: none;
+            transition: all 0.15s;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+        .er-nav-link:hover { color: #fff; background: rgba(255,255,255,0.1); }
+        .er-nav-link.active { color: #F5C842; background: rgba(245,200,66,0.15); }
+        .er-nav-link.logout {
+            color: #ffaaaa;
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            margin-left: 6px;
+        }
+        .er-nav-link.logout:hover { background: rgba(239,68,68,0.25); }
+
+        .er-nav-right { display: flex; align-items: center; gap: 10px; }
+        .er-avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: rgba(245,200,66,0.2);
+            border: 1.5px solid rgba(245,200,66,0.5);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 600; color: #F5C842;
+        }
+        .er-btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #F5C842;
+            color: #1a2a5e;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+            transition: opacity 0.15s;
+        }
+        .er-btn-primary:hover { opacity: 0.88; color: #1a2a5e; }
+
+        .er-main {
+            padding: 2rem;
+            flex: 1;
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .er-page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 1.75rem;
+        }
+        .er-breadcrumb { font-size: 12px; color: #5a6ea0; margin-bottom: 5px; }
+        .er-breadcrumb span { color: #1a3a8a; }
+        .er-page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: #1a2a5e;
+            line-height: 1.2;
+        }
+        .er-page-sub { font-size: 13px; color: #5a6ea0; margin-top: 4px; }
+
+        .er-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 1.75rem;
+        }
+        .er-stat {
+            background: #ffffff;
+            border: 1px solid #dce5f7;
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.15s;
+        }
+        .er-stat:hover { box-shadow: 0 4px 16px rgba(26,58,138,0.1); }
+        .er-stat::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            border-radius: 12px 12px 0 0;
+        }
+        .er-stat.yellow::before { background: #F5C842; }
+        .er-stat.blue::before   { background: #1a3a8a; }
+        .er-stat.teal::before   { background: #34D399; }
+
+        .er-stat-icon {
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .er-stat.yellow .er-stat-icon { background: rgba(245,200,66,0.12); color: #d4a820; }
+        .er-stat.blue   .er-stat-icon { background: rgba(26,58,138,0.1);   color: #1a3a8a; }
+        .er-stat.teal   .er-stat-icon { background: rgba(52,211,153,0.12); color: #34D399; }
+
+        .er-stat-info { flex: 1; }
+        .er-stat-num { font-size: 28px; font-weight: 600; color: #1a2a5e; line-height: 1; margin-bottom: 4px; }
+        .er-stat-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #5a6ea0; }
+        .er-stat-badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500; align-self: flex-start; }
+        .er-stat.yellow .er-stat-badge { background: rgba(245,200,66,0.15); color: #d4a820; }
+        .er-stat.blue   .er-stat-badge { background: rgba(26,58,138,0.1);   color: #1a3a8a; }
+        .er-stat.teal   .er-stat-badge { background: rgba(52,211,153,0.15); color: #34D399; }
+
+        .er-cols { display: grid; grid-template-columns: 1fr 340px; gap: 14px; align-items: start; }
+
+        .er-search-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .er-search-wrap { flex: 1; min-width: 180px; position: relative; }
+        .er-search-wrap i {
+            position: absolute; left: 12px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px; color: #5a6ea0; pointer-events: none;
+        }
+        .er-search-input {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid #dce5f7;
+            border-radius: 8px;
+            padding: 9px 12px 9px 36px;
+            font-size: 13px; color: #1a2a5e; outline: none;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color 0.15s;
+        }
+        .er-search-input::placeholder { color: #5a6ea0; }
+        .er-search-input:focus { border-color: #1a3a8a; }
+
+        .er-select {
+            background: #ffffff;
+            border: 1px solid #dce5f7;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 13px; color: #1a2a5e; outline: none;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: border-color 0.15s;
+        }
+        .er-select:focus { border-color: #1a3a8a; }
+        .er-select option { background: #ffffff; }
+
+        .er-card { background: #ffffff; border: 1px solid #dce5f7; border-radius: 12px; overflow: hidden; }
+        .er-card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #dce5f7;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .er-card-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #5a6ea0; }
+        .er-view-all { font-size: 12px; color: #1a3a8a; font-weight: 500; text-decoration: none; }
+        .er-view-all:hover { text-decoration: underline; }
+
+        .er-table { width: 100%; border-collapse: collapse; }
+        .er-table th {
+            text-align: left; font-size: 11px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.07em; color: #5a6ea0;
+            padding: 10px 1.25rem; border-bottom: 1px solid #dce5f7;
+        }
+        .er-table td {
+            padding: 11px 1.25rem; font-size: 13px; color: #1a2a5e;
+            border-bottom: 1px solid #e8eef8; vertical-align: middle;
+        }
+        .er-table tr:last-child td { border-bottom: none; }
+        .er-table tr:hover td { background: #f0f4ff; }
+
+        .er-dept-pill { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; background: rgba(26,58,138,0.1); color: #1a3a8a; }
+        .er-year-pill { font-size: 11px; padding: 3px 8px; border-radius: 20px; background: #e8eef8; color: #5a6ea0; }
+        .er-link {
+            font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 6px;
+            background: rgba(26,58,138,0.08); color: #1a3a8a; text-decoration: none;
+            border: 1px solid rgba(26,58,138,0.2); transition: all 0.15s;
+        }
+        .er-link:hover { background: rgba(26,58,138,0.15); color: #1a3a8a; }
+        .er-delete-btn {
+            font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 6px;
+            background: rgba(239,68,68,0.06); color: #e05050;
+            border: 1px solid rgba(239,68,68,0.2); cursor: pointer;
+            font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+        }
+        .er-delete-btn:hover { background: rgba(239,68,68,0.12); }
+
+        .er-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3.5rem 2rem; text-align: center; }
+        .er-empty-icon { width: 56px; height: 56px; border-radius: 14px; background: rgba(26,58,138,0.06); display: flex; align-items: center; justify-content: center; font-size: 26px; color: #1a3a8a; margin-bottom: 1rem; }
+        .er-empty-title { font-size: 15px; font-weight: 500; color: #5a6ea0; margin-bottom: 6px; }
+        .er-empty-sub { font-size: 12px; color: #aab8d8; margin-bottom: 1.25rem; }
+
+        .er-sidebar { display: flex; flex-direction: column; gap: 14px; }
+
+        .er-dept-list { padding: 0.75rem 1.25rem 1rem; }
+        .er-dept-item { margin-bottom: 14px; }
+        .er-dept-item:last-child { margin-bottom: 0; }
+        .er-dept-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+        .er-dept-name { font-weight: 500; color: #1a2a5e; }
+        .er-dept-count { color: #5a6ea0; }
+        .er-dept-bar { height: 4px; background: #e8eef8; border-radius: 4px; overflow: hidden; }
+        .er-dept-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+
+        .bar-c0 { background: #F5C842; }
+        .bar-c1 { background: #1a3a8a; }
+        .bar-c2 { background: #34D399; }
+        .bar-c3 { background: #C084FC; }
+        .bar-c4 { background: #e05050; }
+        .bar-c5 { background: #FB923C; }
+
+        .er-recent-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 1.25rem; border-bottom: 1px solid #e8eef8;
+            transition: background 0.12s;
+        }
+        .er-recent-item:last-child { border-bottom: none; }
+        .er-recent-item:hover { background: #f0f4ff; }
+        .er-recent-icon { width: 34px; height: 34px; border-radius: 8px; background: rgba(26,58,138,0.08); display: flex; align-items: center; justify-content: center; font-size: 15px; color: #1a3a8a; flex-shrink: 0; }
+        .er-recent-name { font-size: 13px; font-weight: 500; color: #1a2a5e; }
+        .er-recent-meta { font-size: 11px; color: #5a6ea0; margin-top: 2px; }
+        .er-recent-time { font-size: 11px; color: #5a6ea0; margin-left: auto; white-space: nowrap; }
+
+        .er-actions { padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 8px; }
+        .er-action-btn {
+            display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+            border-radius: 8px; background: #f0f4ff;
+            border: 1px solid #dce5f7; cursor: pointer;
+            font-size: 13px; font-weight: 500; color: #1a2a5e;
+            font-family: 'DM Sans', sans-serif; text-decoration: none; transition: all 0.15s;
+        }
+        .er-action-btn:hover { background: rgba(26,58,138,0.08); border-color: rgba(26,58,138,0.3); color: #1a3a8a; }
+        .er-action-btn i { font-size: 16px; }
+    </style>
+</head>
+<body>
+
+<nav class="er-nav">
+    <a href="/dashboard" class="er-logo">
+        <div class="er-logo-dot"></div>
+        EventRepo
+    </a>
+    <div class="er-nav-links">
+        <a href="/dashboard" class="er-nav-link active">
+            <i class="ti ti-layout-dashboard"></i>Dashboard
+        </a>
+        <a href="/upload" class="er-nav-link">
+            <i class="ti ti-upload"></i>Upload
+        </a>
+        <a href="/events" class="er-nav-link">
+            <i class="ti ti-calendar-event"></i>Events
+        </a>
+        <a href="/admin/departments" class="er-nav-link">
+            <i class="ti ti-users"></i>Departments
+        </a>
+        <a href="/logout" class="er-nav-link logout">
+            <i class="ti ti-logout"></i>Logout
+        </a>
+    </div>
+    <div class="er-nav-right">
+        <div class="er-avatar">AD</div>
+        <a href="/upload" class="er-btn-primary">
+            <i class="ti ti-plus"></i>Upload Event
+        </a>
+    </div>
+</nav>
+
+<main class="er-main">
+
+    <div class="er-page-header">
+        <div>
+            <div class="er-breadcrumb">Admin <span>/</span> Dashboard</div>
+            <h1 class="er-page-title">Dashboard</h1>
+            <p class="er-page-sub">All Departments · Admin View</p>
+        </div>
+    </div>
+
+    <div class="er-stats">
+        <div class="er-stat yellow">
+            <div class="er-stat-icon"><i class="ti ti-calendar-event"></i></div>
+            <div class="er-stat-info">
+                <div class="er-stat-num">{{ total_events }}</div>
+                <div class="er-stat-label">Total Events</div>
+            </div>
+            <div class="er-stat-badge">All time</div>
+        </div>
+        <div class="er-stat blue">
+            <div class="er-stat-icon"><i class="ti ti-building-community"></i></div>
+            <div class="er-stat-info">
+                <div class="er-stat-num">{{ departments|count }}</div>
+                <div class="er-stat-label">Departments</div>
+            </div>
+            <div class="er-stat-badge">Active</div>
+        </div>
+        <div class="er-stat teal">
+            <div class="er-stat-icon"><i class="ti ti-file-upload"></i></div>
+            <div class="er-stat-info">
+                <div class="er-stat-num">{{ recent|length }}</div>
+                <div class="er-stat-label">Recent Uploads</div>
+            </div>
+            <div class="er-stat-badge">This month</div>
+        </div>
+    </div>
+
+    <div class="er-cols">
+
+        <div>
+            <div class="er-search-row">
+                <div class="er-search-wrap">
+                    <i class="ti ti-search"></i>
+                    <input class="er-search-input" type="text" id="searchInput" placeholder="Search events by title, department…">
+                </div>
+                <select class="er-select" id="deptFilter">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept }}">{{ dept }}</option>
+                    {% endfor %}
+                </select>
+                <select class="er-select" id="yearFilter">
+                    <option value="">All Years</option>
+                    <option>2025-26</option>
+                    <option>2024-25</option>
+                    <option>2023-24</option>
+                    <option>2022-23</option>
+                    <option>2021-22</option>
+                    <option>2020-21</option>
+                </select>
+            </div>
+
+            <div class="er-card">
+                <div class="er-card-header">
+                    <span class="er-card-title">All Events</span>
+                    <a href="/events" class="er-view-all">View all →</a>
+                </div>
+                {% if events %}
+                <table class="er-table" id="eventsTable">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Department</th>
+                            <th>Year</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in events %}
+                        <tr data-dept="{{ event.department }}" data-year="{{ event.year }}" data-title="{{ event.title|lower }}">
+                            <td style="font-weight:500;color:#1a2a5e;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ event.title }}</td>
+                            <td><span class="er-dept-pill">{{ event.department }}</span></td>
+                            <td><span class="er-year-pill">{{ event.year }}</span></td>
+                            <td style="color:#5a6ea0;">{{ event.upload_date }}</td>
+                            <td>
+                                <div style="display:flex;gap:6px;align-items:center;">
+                                    <a href="/uploads/{{ event.filename }}" target="_blank" class="er-link">
+                                        <i class="ti ti-external-link" style="font-size:11px;"></i> View
+                                    </a>
+                                    <form method="POST" action="/delete/{{ event.id }}" style="display:inline;" onsubmit="return confirm('Delete this event?')">
+                                        <button type="submit" class="er-delete-btn">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="er-empty-state">
+                    <div class="er-empty-icon"><i class="ti ti-inbox"></i></div>
+                    <div class="er-empty-title">No events uploaded yet</div>
+                    <div class="er-empty-sub">Start by uploading the first event record to the repository.</div>
+                    <a href="/upload" class="er-btn-primary" style="font-size:13px;padding:8px 18px;">
+                        <i class="ti ti-plus"></i>Upload First Event
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="er-sidebar">
+
+            <div class="er-card">
+                <div class="er-card-header">
+                    <span class="er-card-title">Department Breakdown</span>
+                </div>
+                <div class="er-dept-list">
+                    {% if dept_stats %}
+                    {% set max_count = dept_stats.values() | max %}
+{% for dept_name, count in dept_stats.items() %}
+{% set pct = ((count / max_count) * 100) | int %}
+<div class="er-dept-item">
+    <div class="er-dept-row">
+        <span class="er-dept-name">{{ dept_name }}</span>
+        <span class="er-dept-count">{{ count }} event{{ 's' if count != 1 }}</span>
+    </div>
+    <div class="er-dept-bar">
+        <div class="er-dept-fill bar-c{{ loop.index0 % 6 }}" style="width:{{ pct }}%;"></div>
+    </div>
+</div>
+{% endfor %}
+                    {% else %}
+                    <p style="font-size:13px;color:#5a6ea0;text-align:center;padding:1rem 0;">No data yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="er-card">
+                <div class="er-card-header">
+                    <span class="er-card-title">Recent Uploads</span>
+                </div>
+                {% if recent %}
+                <div>
+                    {% for item in recent %}
+                    <div class="er-recent-item">
+                        <div class="er-recent-icon"><i class="ti ti-file-upload"></i></div>
+                        <div style="flex:1;min-width:0;">
+                            <div class="er-recent-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.title }}</div>
+                            <div class="er-recent-meta">{{ item.department }}</div>
+                        </div>
+                        <span class="er-recent-time">{{ item.upload_date }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div style="padding:1.5rem;text-align:center;color:#5a6ea0;font-size:13px;">
+                    <i class="ti ti-clock" style="font-size:22px;display:block;margin-bottom:8px;color:#aab8d8;"></i>
+                    No recent activity
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="er-card">
+                <div class="er-card-header">
+                    <span class="er-card-title">Quick Actions</span>
+                </div>
+                <div class="er-actions">
+                    <a href="/upload" class="er-action-btn">
+                        <i class="ti ti-upload"></i>Upload Event Report
+                    </a>
+                    <a href="/events" class="er-action-btn">
+                        <i class="ti ti-calendar-event"></i>Browse All Events
+                    </a>
+                    <a href="/admin/export" class="er-action-btn">
+                        <i class="ti ti-download"></i>Export Records
+                    </a>
+                    <a href="/admin/departments" class="er-action-btn">
+                        <i class="ti ti-building-community"></i>Manage Departments
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</main>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const deptFilter  = document.getElementById('deptFilter');
+    const yearFilter  = document.getElementById('yearFilter');
+    const rows        = document.querySelectorAll('#eventsTable tbody tr');
+
+    function filterTable() {
+        const q    = searchInput ? searchInput.value.toLowerCase() : '';
+        const dept = deptFilter ? deptFilter.value.toLowerCase() : '';
+        const year = yearFilter ? yearFilter.value.toLowerCase() : '';
+        rows.forEach(row => {
+            const title   = (row.dataset.title || '').toLowerCase();
+            const rowDept = (row.dataset.dept  || '').toLowerCase();
+            const rowYear = (row.dataset.year  || '').toLowerCase();
+            const matchQ    = !q    || title.includes(q) || rowDept.includes(q);
+            const matchDept = !dept || rowDept === dept;
+            const matchYear = !year || rowYear === year;
+            row.style.display = (matchQ && matchDept && matchYear) ? '' : 'none';
+        });
+    }
+
+    if (searchInput) searchInput.addEventListener('input', filterTable);
+    if (deptFilter)  deptFilter.addEventListener('change', filterTable);
+    if (yearFilter)  yearFilter.addEventListener('change', filterTable);
+</script>
+
+</body>
+</html>

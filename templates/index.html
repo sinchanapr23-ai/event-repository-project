@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Event Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bubbles.css') }}">
+    <style>
+        body { background: linear-gradient(135deg, #1a1150 0%, #2d1b6e 40%, #1a3a6e 100%); }
+        h1, p { color: #ffffff; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>College Event Portal</h1>
+    <p>Select your department to continue</p>
+    <div class="bubble-container">
+        <a href="/login/CSE" class="bubble blue">CSE</a>
+        <a href="/login/ECE" class="bubble green">ECE</a>
+        <a href="/login/ISE" class="bubble cyan">ISE</a>
+        <a href="/login/EEE" class="bubble orange">EEE</a>
+        <a href="/login/ADMIN" class="bubble admin">Admin</a>
+    </div>
+</div>
+</body>
+</html>

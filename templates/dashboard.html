@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard – EventRepo - {{ session['department'] }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #f0f4ff;
+            color: #1a2a5e;
+            min-height: 100vh;
+        }
+
+        /* ── NAV ── */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2.5rem;
+            height: 62px;
+            background: #1a3a8a;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            color: #fff;
+            text-decoration: none;
+        }
+        .nav-brand-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #F5C842;
+            display: inline-block;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.6);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+        .nav-link:hover { color: #fff; background: rgba(255,255,255,0.1); }
+        .nav-link.active { color: #F5C842; background: rgba(245,200,66,0.15); }
+        .nav-link.logout {
+            color: #ffaaaa;
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            margin-left: 6px;
+        }
+        .nav-link.logout:hover { background: rgba(239,68,68,0.25); }
+
+        /* ── MAIN ── */
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 2.5rem;
+        }
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 1.75rem;
+        }
+        .page-header-left .breadcrumb {
+            font-size: 12px;
+            color: #5a6ea0;
+            margin-bottom: 5px;
+        }
+        .page-header-left .breadcrumb span { color: #1a3a8a; }
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: #1a2a5e;
+        }
+        .page-sub {
+            font-size: 13px;
+            color: #5a6ea0;
+            margin-top: 4px;
+        }
+
+        /* ── BUTTONS ── */
+        .btn-primary-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 20px;
+            background: #F5C842;
+            color: #1a2a5e;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: opacity 0.15s;
+            white-space: nowrap;
+        }
+        .btn-primary-custom:hover { opacity: 0.88; color: #1a2a5e; }
+
+        /* ── STATS ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #dce5f7;
+            border-radius: 12px;
+            padding: 1.4rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .stat-card:hover { border-color: #1a3a8a; box-shadow: 0 4px 16px rgba(26,58,138,0.1); }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            border-radius: 12px 12px 0 0;
+        }
+        .stat-card:nth-child(1)::before { background: #F5C842; }
+        .stat-card:nth-child(2)::before { background: #34D399; }
+        .stat-card:nth-child(3)::before { background: #1a3a8a; }
+
+        .stat-icon-wrap {
+            width: 46px; height: 46px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .stat-card:nth-child(1) .stat-icon-wrap { background: rgba(245,200,66,0.12); color: #d4a820; }
+        .stat-card:nth-child(2) .stat-icon-wrap { background: rgba(52,211,153,0.12); color: #34D399; }
+        .stat-card:nth-child(3) .stat-icon-wrap { background: rgba(26,58,138,0.1); color: #1a3a8a; }
+
+        .stat-num {
+            font-size: 30px;
+            font-weight: 600;
+            color: #1a2a5e;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: #5a6ea0;
+        }
+
+        /* ── SECTION HEADER ── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .section-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #5a6ea0;
+        }
+        .view-all-link {
+            font-size: 12px;
+            color: #1a3a8a;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .view-all-link:hover { text-decoration: underline; }
+
+        /* ── EVENTS GRID ── */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+        }
+        .event-card {
+            background: #ffffff;
+            border: 1px solid #dce5f7;
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .event-card:hover { border-color: #1a3a8a; box-shadow: 0 4px 16px rgba(26,58,138,0.1); }
+        .event-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .dept-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(26,58,138,0.1);
+            color: #1a3a8a;
+            letter-spacing: 0.03em;
+        }
+        .year-tag {
+            font-size: 11px;
+            color: #5a6ea0;
+            background: #e8eef8;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+        .event-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a2a5e;
+            line-height: 1.4;
+        }
+        .event-desc {
+            font-size: 12px;
+            color: #5a6ea0;
+            line-height: 1.6;
+            flex: 1;
+        }
+        .event-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid #dce5f7;
+            margin-top: 4px;
+        }
+        .upload-date {
+            font-size: 11px;
+            color: #5a6ea0;
+        }
+        .event-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .btn-view {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 5px 12px;
+            border-radius: 6px;
+            background: rgba(26,58,138,0.08);
+            color: #1a3a8a;
+            text-decoration: none;
+            border: 1px solid rgba(26,58,138,0.2);
+            transition: all 0.15s;
+        }
+        .btn-view:hover { background: rgba(26,58,138,0.15); color: #1a3a8a; }
+        .btn-delete {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 5px 12px;
+            border-radius: 6px;
+            background: rgba(239,68,68,0.06);
+            color: #e05050;
+            border: 1px solid rgba(239,68,68,0.2);
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.15s;
+        }
+        .btn-delete:hover { background: rgba(239,68,68,0.12); }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            text-align: center;
+            background: #ffffff;
+            border: 1px solid #dce5f7;
+            border-radius: 12px;
+        }
+        .empty-icon {
+            width: 58px; height: 58px;
+            border-radius: 14px;
+            background: rgba(26,58,138,0.06);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            color: #5a6ea0;
+            margin-bottom: 1rem;
+        }
+        .empty-state p {
+            font-size: 14px;
+            font-weight: 500;
+            color: #5a6ea0;
+            margin-bottom: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="top-nav">
+    <a href="/dashboard" class="nav-brand">
+        <span class="nav-brand-dot"></span>
+        EventRepo
+    </a>
+    <div class="nav-links">
+        <a href="/dashboard" class="nav-link active">
+            <i class="ti ti-layout-dashboard"></i>Dashboard
+        </a>
+        <a href="/upload" class="nav-link">
+            <i class="ti ti-upload"></i>Upload
+        </a>
+        <a href="/events" class="nav-link">
+            <i class="ti ti-calendar-event"></i>Events
+        </a>
+        <a href="/logout" class="nav-link logout">
+            <i class="ti ti-logout"></i>Logout
+        </a>
+    </div>
+</nav>
+
+<div class="main-container">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <div class="breadcrumb">{{ session['department'] }} <span>/</span> Dashboard</div>
+            <h2 class="page-title">Dashboard</h2>
+            <p class="page-sub">{{ session['department'] }} Department</p>
+        </div>
+        <a href="/upload" class="btn-primary-custom">
+            <i class="ti ti-plus"></i>Upload Event
+        </a>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon-wrap"><i class="ti ti-calendar-event"></i></div>
+            <div>
+                <div class="stat-num">{{ total_events }}</div>
+                <div class="stat-label">Total Events</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon-wrap"><i class="ti ti-file-upload"></i></div>
+            <div>
+                <div class="stat-num">{{ recent|length }}</div>
+                <div class="stat-label">Recent Uploads</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon-wrap"><i class="ti ti-search"></i></div>
+            <div>
+                <a href="/events" style="font-size:15px;font-weight:600;color:#1a3a8a;text-decoration:none;display:block;margin-bottom:4px;">View with Search</a>
+                <div class="stat-label">Browse all events</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EVENTS SECTION -->
+    <div class="section-header">
+        <h3 class="section-title">All Uploaded Events</h3>
+        <a href="/events" class="view-all-link">View all →</a>
+    </div>
+
+    {% if events %}
+    <div class="events-grid">
+        {% for event in events %}
+        <div class="event-card">
+            <div class="event-card-top">
+                <span class="dept-badge">{{ event.department }}</span>
+                <span class="year-tag">{{ event.year }}</span>
+            </div>
+            <h4 class="event-title">{{ event.title }}</h4>
+            <p class="event-desc">{{ event.description[:80] }}{% if event.description|length > 80 %}...{% endif %}</p>
+            <div class="event-card-footer">
+                <span class="upload-date">{{ event.upload_date }}</span>
+                <div class="event-actions">
+                    <a href="/uploads/{{ event.filename }}" target="_blank" class="btn-view">View File</a>
+                    <form method="POST" action="/delete/{{ event.id }}" style="display:inline;" onsubmit="return confirm('Delete this event?')">
+                        <button type="submit" class="btn-delete">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="ti ti-inbox"></i></div>
+        <p>No events uploaded yet.</p>
+        <a href="/upload" class="btn-primary-custom"><i class="ti ti-plus"></i>Upload First Event</a>
+    </div>
+    {% endif %}
+
+</div>
+</body>
+</html>
