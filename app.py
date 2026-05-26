@@ -52,7 +52,7 @@ def allowed_file(filename):
 # ── HOME PAGE (Bubble landing) ──────────────────────────────
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return "Website is live"
 
 
 # ── DEPARTMENT LOGIN ────────────────────────────────────────
